@@ -1,0 +1,23 @@
+{
+  "name": "ffmpeg-wasm-mkv",
+  "version": "0.0.1",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server"
+  },
+  "repository": "",
+  "author": "Sevastyan Stepanov",
+  "license": "GPLv3",
+  "devDependencies": {
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.5.3",
+    "webpack": "^5.92.1",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.4"
+  },
+  "dependencies": {
+    "@ffmpeg/ffmpeg": "^0.12.10",
+    "@ffmpeg/util": "^0.12.1",
+    "rxjs": "^7.8.1"
+  }
+}
