@@ -22,11 +22,4 @@ this.ffmpegCore.on('log', ({ message: msg }) => {
   //console.log(msg);
 ```
 
-## Notes on deploying
-This project uses SharedArrayBuffer, for which the following [COOP/COEP](https://www.w3.org/TR/post-spectre-webdev/) HTTP headers need to be returned by the server hosting the web page to enable the JavaScript feature:
-```
-Cross-Origin-Opener-Policy: same-origin
-Cross-Origin-Embedder-Policy: require-corp
-```
-
 The project was implemented based on the [mkv-web](https://github.com/ilian/mkv-web/tree/master) project
