@@ -203,6 +203,7 @@ export default class FFmpegWorker {
       "-ss", seekOffsetSeconds.toString(), // Seek input file
       ...(typeof durationSeconds === "undefined" ? [] : ["-t", durationSeconds.toString()]), // Duration of chunk
       "-copyts",
+      "-start_at_zero",
       "-i", this.inputPath, // Input file
       "-f", "mpegts"
     ]
@@ -213,7 +214,6 @@ export default class FFmpegWorker {
       args = args.concat(this.audioArgs())
     }
     args = args.concat([
-      "-movflags", "frag_keyframe+delay_moov+default_base_moof",
       `${this.outputDir}/video`,
     ])
 
