@@ -1,10 +1,7 @@
 {
   "name": "ffmpeg-wasm-mkv",
-  "version": "0.0.1",
-  "main": "index.js",
-  "scripts": {
-    "start": "webpack-dev-server"
-  },
+  "version": "0.1.0",
+  "main": "src/ffwm.js",
   "repository": "",
   "author": "Sevastyan Stepanov",
   "license": "GPLv3",

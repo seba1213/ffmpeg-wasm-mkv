@@ -1,0 +1,12 @@
+{
+  "name": "example",
+  "version": "0.1.0",
+  "main": "index.js",
+  "description": "browser example",
+  "private": true,
+  "scripts": {
+    "start": "webpack-dev-server"
+  },
+  "author": "Sevastyan Stepanov",
+  "license": "GPLv3"
+}

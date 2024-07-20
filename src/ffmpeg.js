@@ -13,19 +13,17 @@ export default class FFmpegWorker {
 
   streamRegex = /\s*Stream #(?<id>\d+:\d+)\(?(?<lang>.*?)\)?: (?<type>\w+): (?<formatDescription>.*)/;
   durationRegex = /Duration: (\d+?):(\d{2}):(.+?),/;
+  outputDir = "/output";
 
   videoStreamContainer
   audioStreamContainer
-
   audioStream
   videoStream
-
   file
   ffmpegCore
   ffmpegLogObservable
   inputPath
   inputMetadata
-  outputDir = "/output";
   ffmpegState = FFmpegState.Uninitialized;
 
   videoCompatibleContainer(format) {
@@ -73,7 +71,7 @@ export default class FFmpegWorker {
     return !(this.ffmpegState == FFmpegState.Uninitialized);
   }
 
-  async load() {
+  async load(coreURL, wasmURL) {
     this.assertState(FFmpegState.Uninitialized);
     this.ffmpegState = FFmpegState.Initializing;
 
@@ -99,10 +97,7 @@ export default class FFmpegWorker {
       }
     })
 
-    await this.ffmpegCore.load({
-      coreURL: "/assets/core/package/dist/esm/ffmpeg-core.js",
-      wasmURL: "/assets/core/package/dist/esm/ffmpeg-core.wasm"
-    })
+    await this.ffmpegCore.load({ coreURL, wasmURL })
     this.ffmpegState = FFmpegState.Idle;
   }
 
@@ -214,7 +209,7 @@ export default class FFmpegWorker {
     if (this.videoStreamContainer) {
       args = args.concat(this.videoArgs())
     }
-    if (this.videoStreamContainer) {
+    if (this.audioStreamContainer) {
       args = args.concat(this.audioArgs())
     }
     args = args.concat([
@@ -268,5 +263,9 @@ export default class FFmpegWorker {
       this.mountFile()
       return await this.ffmpegCore.exec(args)
     }
+  }
+
+  terminate() {
+    this.ffmpegCore?.terminate()
   }
 }
