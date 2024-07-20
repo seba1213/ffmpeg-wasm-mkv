@@ -4,11 +4,6 @@ const transcode = async ({ target: { files } }) => {
         let audioStreams = data.audioStreams
         selectAudioStream(audioStreams)
         video.src = data.src
-        video.addEventListener("timeupdate", () => {
-            if (video.currentTime != 0) {
-                ffwm.onTimeUpdate(video.currentTime)
-            }
-        }, { once: true })
         ffwm.start(data.videoStreams[0]?.id, audioStreams[0]?.id).then(() => {
             video.play()
         })
@@ -24,7 +19,7 @@ const selectAudioStream = (audioStreams) => {
     }
     select.addEventListener('change', function (e) {
         ffwm.setAudioStream(e.target.value)
-    }, { once: true })
+    })
 }
 
 const elm = document.getElementById('uploader');
@@ -36,4 +31,8 @@ const ffwm = new Ffwm(
     "/assets/mux.min.js",
     10, 5
 )
-
+video.addEventListener("timeupdate", () => {
+    if (video.currentTime != 0) {
+        ffwm.onTimeUpdate(video.currentTime)
+    }
+})
