@@ -26,10 +26,10 @@ const elm = document.getElementById('uploader');
 elm.addEventListener('change', transcode);
 const video = document.getElementById('output-video')
 const ffwm = new Ffwm(
-    "/assets/ffmpeg-core.js",
-    "/assets/ffmpeg-core.wasm",
+    "/assets/core/ffmpeg-core.js",
+    "/assets/core/ffmpeg-core.wasm",
     "/assets/mux.min.js",
-    10, 5
+    11.4, 8
 )
 video.addEventListener("timeupdate", () => {
     if (video.currentTime != 0) {

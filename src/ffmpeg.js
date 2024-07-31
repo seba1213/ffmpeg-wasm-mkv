@@ -205,7 +205,6 @@ export default class FFmpegWorker {
       "-copyts",
       "-start_at_zero",
       "-i", this.inputPath, // Input file
-      "-f", "mpegts"
     ]
     if (this.videoStreamContainer) {
       args = args.concat(this.videoArgs())
@@ -214,6 +213,9 @@ export default class FFmpegWorker {
       args = args.concat(this.audioArgs())
     }
     args = args.concat([
+      "-f", "mpegts",
+      "-muxdelay", "0",
+      "-muxpreload", "0",
       `${this.outputDir}/video`,
     ])
 
@@ -240,6 +242,8 @@ export default class FFmpegWorker {
       args = args.concat([
         "-strict", "-2",
         "-ac", "2",
+        "-ar", "48000",
+        "-b:a", "192k",
         "-acodec", this.audioStreamContainer.codec
       ])
     } else {

@@ -166,7 +166,7 @@ export default class FfWM {
   }
 
   log(logEntry) {
-    console.log(logEntry);
+    //console.log(logEntry);
     this.logCallbacks.forEach(cb => cb(logEntry));
   }
 
@@ -200,7 +200,7 @@ export default class FfWM {
     for (let j = 0; j < bufferedRanges.length; j++) {
       const start = bufferedRanges.start(j)
       const end = bufferedRanges.end(j)
-      this.log(j + ': ' + time + ' | ' + start + ' | ' + end)
+      //this.log(j + ': ' + time + ' | ' + start + ' | ' + end)
       if (start <= time && time <= end) {
         intersectingRangeEnd = end
         break
