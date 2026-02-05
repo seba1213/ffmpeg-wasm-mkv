@@ -14,6 +14,7 @@ export default class FfWM {
   videoSourceBuffer
   updatingVideoTime
   nextTask
+  streamEnded
 
   /**
    * 
@@ -166,7 +167,7 @@ export default class FfWM {
   }
 
   log(logEntry) {
-    //console.log(logEntry);
+    console.log(logEntry);
     this.logCallbacks.forEach(cb => cb(logEntry));
   }
 
@@ -186,6 +187,7 @@ export default class FfWM {
     this.videoSourceBuffer = undefined
     this.updatingVideoTime = undefined
     this.nextTask = undefined
+    this.streamEnded = undefined
     this.mediaSource = new MediaSource()
     this.ffmpegWorker.terminate()
     this.ffmpegWorker = new FFmpegWorker()
@@ -235,7 +237,14 @@ export default class FfWM {
       }
     }
     if (chunk) {
-      this.videoSourceBuffer.addEventListener("updateend", () => cb(chunk), { once: true })
+      this.videoSourceBuffer.addEventListener("updateend", () => {
+        cb(chunk)
+        if (!this.streamEnded && start + len >= this.loadedMediaMetadata.durationSeconds && this.mediaSource.readyState === 'open') {
+          this.streamEnded = true
+          this.mediaSource.endOfStream()
+          this.log("end of streem")
+        }
+      }, { once: true })
       if (start == 0) {
         this.appendFirstSegment(chunk, this.videoSourceBuffer)
       } else {
