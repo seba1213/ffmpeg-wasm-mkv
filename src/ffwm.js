@@ -167,7 +167,7 @@ export default class FfWM {
   }
 
   log(logEntry) {
-    console.log(logEntry);
+    //console.log(logEntry);
     this.logCallbacks.forEach(cb => cb(logEntry));
   }
 
