@@ -1,6 +1,6 @@
 {
   "name": "ffmpeg-wasm-mkv",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "main": "src/ffwm.js",
   "repository": "",
   "author": "Sevastyan Stepanov",
