@@ -255,11 +255,21 @@ export default class FfWM {
 
   appendFirstSegment(arrayBuff, sourceBuffer) {
     this.transmuxer.on('data', (segment) => {
+      if (this.mediaSource.readyState !== 'open') {
+        this.transmuxer.off('data');
+        return;
+      }
       let data = new Uint8Array(segment.initSegment.byteLength + segment.data.byteLength);
       data.set(segment.initSegment, 0);
       data.set(segment.data, segment.initSegment.byteLength);
       //this.log(muxjs.mp4.tools.inspect(data));
-      sourceBuffer.appendBuffer(data);
+      try {
+        sourceBuffer.appendBuffer(data);
+      } catch (e) {
+        if (!e || e.name !== 'InvalidStateError') {
+          throw e;
+        }
+      }
       // reset the 'data' event listener to just append (moof/mdat) boxes to the Source Buffer
       this.transmuxer.off('data');
     })
@@ -269,7 +279,17 @@ export default class FfWM {
 
   appendNextSegment(arrayBuff, sourceBuffer) {
     this.transmuxer.on('data', (segment) => {
-      sourceBuffer.appendBuffer(new Uint8Array(segment.data));
+      if (this.mediaSource.readyState !== 'open') {
+        this.transmuxer.off('data');
+        return;
+      }
+      try {
+        sourceBuffer.appendBuffer(new Uint8Array(segment.data));
+      } catch (e) {
+        if (!e || e.name !== 'InvalidStateError') {
+          throw e;
+        }
+      }
       this.transmuxer.off('data');
     })
     this.transmuxer.push(new Uint8Array(arrayBuff));
