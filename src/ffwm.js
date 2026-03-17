@@ -16,6 +16,12 @@ export default class FfWM {
   nextTask
   streamEnded
 
+  _inputFile
+  _videoStreamId
+  _audioStreamId
+  _workerStartedAt
+  _lastPlaybackTime
+
   /**
    * 
    * @param {string} coreURL - /ffmpeg-core.js
@@ -74,6 +80,8 @@ export default class FfWM {
     if (this.ffmpegWorker.isLoaded()) {
       this.clean()
     }
+    this._inputFile = file
+    this._workerStartedAt = Date.now()
     this.log("Starting ffmpeg worker")
     await this.ffmpegWorker.load(this.coreURL, this.wasmURL)
     this.log("Loaded ffmpeg worker")
@@ -120,6 +128,8 @@ export default class FfWM {
     if (i < 0) {
       throw Error("id not found in video streams")
     }
+    this._videoStreamId = videoStreamId
+    this._audioStreamId = audioStreamId
     let containers = this.ffmpegWorker.setStreams(videoStreamId, audioStreamId)
     this.mediaSource.duration = this.loadedMediaMetadata.durationSeconds
     this.addSourceBuffers(containers.videoContainer)
@@ -132,6 +142,7 @@ export default class FfWM {
    * @param {Number} time - current playback time
    */
   async onTimeUpdate(time) {
+    this._lastPlaybackTime = time
     let state = this.ffmpegWorker.ffmpegState
     if (state == 1 || state == 2) return
     let update = (t) => {
@@ -154,6 +165,22 @@ export default class FfWM {
     await update(time)()
   }
 
+  async _restartWorker() {
+    if (!this._inputFile || !this._videoStreamId) return
+    this.log('Restarting FFmpeg worker')
+    this.ffmpegWorker.terminate()
+    this.ffmpegWorker = new FFmpegWorker()
+    this._workerStartedAt = Date.now()
+    this.updatingVideoTime = undefined
+    this.nextTask = undefined
+    await this.ffmpegWorker.load(this.coreURL, this.wasmURL)
+    await this.ffmpegWorker.setInputFile(this._inputFile)
+    await this.ffmpegWorker.getMetadata()
+    this.ffmpegWorker.setStreams(this._videoStreamId, this._audioStreamId)
+    this.log('FFmpeg worker restarted, resuming from ' + (this._lastPlaybackTime || 0))
+    await this.onTimeUpdate(this._lastPlaybackTime || 0)
+  }
+
   setAudioStream(id) {
     let i = this.loadedMediaMetadata.audioStreams.map((s) => s.id).indexOf(id)
     if (i < 0) {
@@ -167,7 +194,7 @@ export default class FfWM {
   }
 
   log(logEntry) {
-    //console.log(logEntry);
+    console.log(logEntry);
     this.logCallbacks.forEach(cb => cb(logEntry));
   }
 
@@ -227,10 +254,16 @@ export default class FfWM {
     this.updatingVideoTime = start
     this.log(`Remuxing Video with time range [${start} - ${start + len}]`)
     const chunk = await this.ffmpegWorker.remuxer(start, len)
+    const WORKER_RESTART_INTERVAL_MS = 5 * 60 * 1000
     const cb = async (s) => {
       const sizeMB = (s.length / (1 << 20)).toFixed(3)
       this.log(`Added remuxed Video with size ${sizeMB} MB to SourceBuffer`)
       this.updatingVideoTime = undefined
+      if (this._workerStartedAt && Date.now() - this._workerStartedAt >= WORKER_RESTART_INTERVAL_MS) {
+        this.nextTask = undefined
+        await this._restartWorker()
+        return
+      }
       if (this.nextTask) {
         await this.nextTask()
         this.nextTask = undefined
