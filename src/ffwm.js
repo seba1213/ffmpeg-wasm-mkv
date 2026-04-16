@@ -29,8 +29,9 @@ export default class FfWM {
    * @param {string} nuxjsURL - /mux.min.js
    * @param {number} bufferSizeSec - 10
    * @param {number} bufferRefillSec - 5
+   * @param {string|null} workerURL - /ffmpeg-core.worker.js (required for MT build, null for ST)
    */
-  constructor(coreURL, wasmURL, nuxjsURL, bufferSizeSec, bufferRefillSec) {
+  constructor(coreURL, wasmURL, nuxjsURL, bufferSizeSec, bufferRefillSec, workerURL) {
     if (!window.MediaSource) {
       throw new Error("Media Source Extensions are not supported by this browser.")
     }
@@ -56,6 +57,7 @@ export default class FfWM {
     this.bufferRefillSec = bufferRefillSec
     this.coreURL = coreURL
     this.wasmURL = wasmURL
+    this.workerURL = workerURL || null
     this.mediaSource = new MediaSource()
     this.ffmpegWorker = new FFmpegWorker()
   }
@@ -83,7 +85,7 @@ export default class FfWM {
     this._inputFile = file
     this._workerStartedAt = Date.now()
     this.log("Starting ffmpeg worker")
-    await this.ffmpegWorker.load(this.coreURL, this.wasmURL)
+    await this.ffmpegWorker.load(this.coreURL, this.wasmURL, this.workerURL)
     this.log("Loaded ffmpeg worker")
     await this.ffmpegWorker.setInputFile(file)
     this.loadedMediaMetadata = await this.ffmpegWorker.getMetadata()
