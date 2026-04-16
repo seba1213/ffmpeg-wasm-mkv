@@ -21,12 +21,23 @@ pnpm add ffmpeg-wasm-mkv
 ```js
 import Ffwm from 'ffmpeg-wasm-mkv';
 
+// Single-thread build (ST)
 const ffwm = new Ffwm(
   '/assets/core/ffmpeg-core.js',
   '/assets/core/ffmpeg-core.wasm',
   '/assets/mux.min.js',
   11.4, // buffer size in seconds
   8     // refill threshold in seconds
+);
+
+// Multi-thread build (MT) — requires ffmpeg-core.worker.js and COOP/COEP headers
+const ffwm = new Ffwm(
+  '/assets/core-mt/ffmpeg-core.js',
+  '/assets/core-mt/ffmpeg-core.wasm',
+  '/assets/mux.min.js',
+  11.4, // buffer size in seconds
+  8,    // refill threshold in seconds
+  '/assets/core-mt/ffmpeg-core.worker.js'
 );
 
 // `file` is a File from <input type="file">
