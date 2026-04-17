@@ -71,7 +71,7 @@ export default class FFmpegWorker {
     return !(this.ffmpegState == FFmpegState.Uninitialized);
   }
 
-  async load(coreURL, wasmURL) {
+  async load(coreURL, wasmURL, workerURL) {
     this.assertState(FFmpegState.Uninitialized);
     this.ffmpegState = FFmpegState.Initializing;
 
@@ -97,7 +97,7 @@ export default class FFmpegWorker {
       }
     })
 
-    await this.ffmpegCore.load({ coreURL, wasmURL })
+    await this.ffmpegCore.load({ coreURL, wasmURL, ...(workerURL ? { workerURL } : {}) })
     this.ffmpegState = FFmpegState.Idle;
   }
 
